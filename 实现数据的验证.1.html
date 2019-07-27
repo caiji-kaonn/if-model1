@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    input {
+      outline: none;
+      border: 1px solid #333;
+    }
+
+    .form {
+      width: 400px;
+      margin: 100px auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .row {
+      display: flex;
+    }
+
+    .cell {
+      padding: 0 10px;
+      line-height: 55px;
+    }
+
+    .f2 {
+      flex: 2;
+    }
+
+    .f3 {
+      flex: 3;
+    }
+
+    .control {
+      display: inline-block;
+      width: 100%;
+      height: 34px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      vertical-align: middle;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 6px 12px;
+      margin-bottom: 0;
+      text-align: center;
+      white-space: nowrap;
+      vertical-align: middle;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: #333;
+      background-color: #fff;
+      border-color: #ccc;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form">
+    <form action="" id="registerForm" method="get">
+      <div class="row">
+        <div class="cell f2">请输入用户名：</div>
+        <div class="cell f3"><input type="text" class="control" name="userName"></div>
+      </div>
+      <div class="row">
+        <div class="cell f2">请输入密码：</div>
+        <div class="cell f3"><input type="text" class="control" name="password"></div>
+      </div>
+      <div class="row">
+        <div class="cell f2">请输入手机号码：</div>
+        <div class="cell f3"><input type="text" class="control" name="phoneNumber"></div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="cell f2"></div>
+        <div class="cell f3">
+          <input type="submit" class="btn" value="提交">
+        </div>
+      </div>
+
+    </form>
+  </div>
+</body>
+<script>
+  /*
+  当我们点击提交
+    验证用户名
+      1.不能为空
+      2.长度要够长 - 我们暂时约定8位
+    验证密码
+      1.密码不能为空
+      2.长度也要够长 - 暂定： 6位
+    验证手机号
+      1.不能为空
+      2.满足手机号码的规律
+        1开头
+        11位数字
+          - 真正在将来工作的时候，是使用 正则表达式 验证
+*/
+  // 设置字面量
+  let form = document.querySelector('#registerForm');
+  let strange = {
+    userName: function (val, panduan) {
+      if (val === '') {
+        return panduan;
+      }
+    },
+    numberLength: function (val, len, panduan) {
+      if (val.length < len) {
+        return panduan;
+      }
+    }
+  }
+
+
+  // 如果按照这种方式,是无法在字面量中添加其他数据或者条件;
+  // let arr = [function () {
+  //     return userEmpty(form.userName.value, '用户名不能空')
+  //   },
+  //   function () {
+  //     return userEmpty(form.password.value, '密码不能空')
+  //   },
+  //   function () {
+  //     return userLength(form.password.value, 8, '密码长度不能小于8')
+  //   },
+  //   function () {
+  //     return userLength(form.userName.value, 8, '用户名长度不能小于8')
+  //   }
+  // ]
+  // function yanzheng() {
+  //   for (let i = 0; i < arr.length; i++) {
+  //     let panduan = arr[i]();
+  //     if (panduan) {
+  //       return panduan;
+  //     }
+  //   }
+  // }
+
+  // 创建函数封装数组的假设条件
+  function valit() {
+    this.valitArr = [];
+  }
+
+  valit.prototype.add = function (dom, rules) {
+    for (let i = 0; i < rules.length; i++) {
+      let rule = rules[i];
+      let fn = function () {
+        let shuxingArr = rule.stageFun.split(':');
+        let funname = shuxingArr.shift();
+        shuxingArr.push(rule.panduan);
+        shuxingArr.unshift(rule.value);
+        // console.log(funname)
+        let funname = rule.valitArr;
+        return strange[funname].apply(dom, shuxingArr)
+      }
+      this.valitArr.push(fn);
+    }
+  }
+
+  // 验证
+  valit.prototype.statr = function () {
+    for (var i = 0; i < valitArr.length; i++) {
+      let panduan = this.valitArr[i]();
+      if (panduan) {
+        return panduan;
+      }
+    }
+  }
+
+  let vat = new valit;
+  vat.add(
+    form.userName, [{
+      stageFun: 'userName',
+      panduan: '用户名不能为空'
+    }]
+  );
+  vat.add(form.password, [{
+    stageFun: 'numberLength：8',
+    panduan: '密码不能少于八'
+  }])
+
+  // 点击事件
+  let btn = document.querySelector('.btn');
+  btn.onclick = function (e) {
+    e.preventDefault();
+    let panduan = vat.statr();
+    if (panduan) {
+      e.preventDefault();
+      alert(panduan);
+    }
+
+  }
+</script>
+
+</html>
